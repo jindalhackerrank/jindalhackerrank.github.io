@@ -1,0 +1,23 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#container {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+h3{
+    position: absolute;
+}
+.image-block-cntnr {
+	min-height: 150px;
+	list-style: none;
+	margin: 0;
+    padding: 0;
+    border:1px solid;
+}
+.image-block {
+	position: relative;
+}

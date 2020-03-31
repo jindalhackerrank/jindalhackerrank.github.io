@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="./style.css" />
+		<title>Image Gallery</title>
+	</head>
+	<body>
+		<div>
+			<div>I have built infinite scroll image gallery using two mechanism</div>
+			<div>
+                <h1>Mechanism 1</h1>
+                <h2>
+                    <a href="/mechanism1.html">Click to open</a>
+				</h2>
+				<h3>
+					<div>I have added a video of this . Since the image will take a lot of time to open. You can have a 
+						glipmpse of this.
+						<a href="/video.webm" target="_blank">Click here to watch video</a>
+					</div>
+				</h3>
+
+				<h3>
+					<div>You can find the source code here
+						<a href="/script.js" target="_blank">here</a>
+					</div>
+				</h3>
+                <p>This is built using calculating the image positions using the fixed-partition algorithm.This would 
+                    help in maintaining the aspect ratio the image.
+                    <div>
+                        <h2>Optimizations Done in this approach</h2>
+                        <ul>
+                            <li>The number of dom elements are same throughout the infinite scroll.Padding is adding at the top
+                                on infinite scroll and dom elements are changed with new images and on reverse scroll they are replaced with
+                                previous urls.
+                            </li>
+                            <li>
+                                Made use of intersection observer to observe the first and last element and do further processing on the basis of that.
+                                Intersection Observer is much performant that scroll event.
+                            </li>
+                            <li>
+                                Made use of actual image aspect ratio . Each list element consist of 5 images and their position is
+                                calculated using fixed-partition algorithm that helps maintaining their aspect ratio.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h2>Things that can be improved with better api</h2>
+                        <ul>
+                            <li>
+                                If the api returns height and width of image before hand . We could show the block loader for the images and lazy load 
+                                the image when the block comes to view port.
+                            </li>
+                            <li>
+                                If the api sends a list of image that would be more optimal.
+                            </li>
+                        </ul>
+                    </div>
+                    
+                </p>
+            </div>
+			<div>
+				<h1>Mechanism 2</h1>
+                <h2>
+                    <a href="/mechanism2.html">Click to open</a>
+				</h2>
+				<h3>
+					<div>You can find the source code here
+						<a href="/script2.js" target="_blank">here</a>
+					</div>
+				</h3>
+                <p>This is built using the css grid.
+                   
+                    
+                    
+                </p>
+            </div>
+		</div>
+	</body>
+</html>
