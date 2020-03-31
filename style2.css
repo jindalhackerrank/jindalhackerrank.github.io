@@ -12,7 +12,9 @@ body {
 }
 
 
-
+#loader{
+  padding: 40px;
+}
 #container {
    
     line-height: 0;

@@ -2,10 +2,15 @@ const images = {};
 let listSize = 20;
 let cIndex = 0 ;
 
+const getLoader = ()=>{
+	const loader = document.createElement('h1');
+	loader.setAttribute("id","loader");
+	loader.innerText = "Loading...";
+	return loader;
+}
 
 const getImages = (c = 1) => {
 	let dog = `https://random.dog/woof.json`;
-	let fox = `https://randomfox.ca/floof/`;
 	const container = document.getElementById('container');
 	return new Promise((resolve, reject) => {
 		let count = 0;
@@ -79,9 +84,12 @@ const initIntersectionObserver = () => {
 	const callback = entries => {
 		entries.forEach(async entry => {
 			if (entry.target.id === `${listSize - 1}`) {
+				const container = document.getElementById('container');
+				container.appendChild(getLoader());
                 let images = await getImages(20);
-                observer.unobserve(document.getElementById(`${listSize - 1}`));
-                appendImagesToDOM(images);
+				observer.unobserve(document.getElementById(`${listSize - 1}`));
+				appendImagesToDOM(images);
+				document.getElementById("loader").remove();
                 observer.observe(document.getElementById(`${listSize - 1}`));
 			}
 		});
@@ -100,7 +108,10 @@ const loadInitialImages = async () => {
 };
 
 const start = async () => {
+	const container = document.getElementById('container');
+	container.appendChild(getLoader());
 	await loadInitialImages();
+	document.getElementById("loader").remove();
 	initIntersectionObserver();
 };
 
