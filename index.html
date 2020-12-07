@@ -20,20 +20,25 @@
     /* border: 1px solid; */
     box-sizing: border-box;
     float: left;
-    display: flex;
-    align-items: center;
   }
   .price{
     font-size: 20px;
     font-weight: bold;
+    margin-left: 10px;
   }
   .barcode {
-    width: 100px;
+    width: 132px;
     height: 60px;
   }
   .text{
-    font-size: 9px;
-    padding: 3px 20px 0 16px;
+    font-size: 8px;
+    padding: 1px 2px 1px 2px;
+    text-align: center;
+    border: 1px solid;
+  }
+  .barcode-price{
+    display: flex;
+    align-items: center;
   }
 </style>
 <script>
@@ -89,21 +94,22 @@
       for (let i = 0; i < data.length; i++) {
         let d = document.createElement("div");
         let r = document.createElement("div");
+        r.setAttribute("class","barcode-price");
         let s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         s.setAttribute("id", `b-${j}-${i}-${data[i].code}`);
         s.setAttribute("class", `barcode`);
         let t = document.createElement("div");
         t.setAttribute("class","text");
-        t.innerText = `${data[i].name} size 12`;
-        r.appendChild(t);
+        t.innerText = data[i].name;
         d.setAttribute("class", "block");
         elem.appendChild(d);
         r.appendChild(s);
         let price = document.createElement("div");
         price.setAttribute("class","price");
         price.innerText = `₹${data[i].sp}`;
+        r.appendChild(price);
+        d.appendChild(t);
         d.appendChild(r);
-        d.appendChild(price);
       }
 
       for (let i = 0; i < data.length; i++) {
