@@ -2,46 +2,60 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
 <script src="https://cdn.jsdelivr.net/jsbarcode/3.3.16/barcodes/JsBarcode.code128.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+<script src="./qrcode.min.js"></script>
+
 <style>
-  body{
+  body {
     margin: 0;
     padding: 0;
   }
   .a4 {
-    height: 1122px;
-    width: 794px;
+    height: 297mm;
+    width: 210mm;
     /* border: 1px solid; */
     box-sizing: border-box;
-    padding: 37.8px 18.9px 25.8px 18.9px;
+    padding: 5mm 1mm;
   }
   .block {
-    height: 75.6px;
-    width: 189px;
+    height: 20.67mm;
+    width: 52mm;
     /* border: 1px solid; */
     box-sizing: border-box;
     float: left;
+    padding: 4px;
   }
-  .price{
+  .price {
     font-size: 20px;
     font-weight: bold;
+    margin-left: 10px;
   }
   .barcode {
     width: 132px;
     height: 55px;
   }
-  .text{
+  .text {
     font-size: 8px;
     padding: 1px 2px 1px 2px;
-    text-align: center;
-    border: 1px solid;
+    /* border: 1px solid; */
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     margin: 2px;
   }
-  .barcode-price{
+  .code{
+    font-size: 9px;
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+  .barcode-price {
     display: flex;
     align-items: center;
+  }
+  .pwrap{
+    display: flex;
+    flex-flow: column;
+
   }
 </style>
 <script>
@@ -79,6 +93,13 @@
             let d = data.splice(0, 56);
             func(d, j++);
           }
+          // var pdf = new jsPDF("p", "pt", "letter");
+          // pdf.canvas.height = 72 * 11;
+          // pdf.canvas.width = 72 * 8.5;
+
+          // pdf.fromHTML(document.body);
+
+          // pdf.save("test.pdf");
         });
       };
 
@@ -97,30 +118,40 @@
       for (let i = 0; i < data.length; i++) {
         let d = document.createElement("div");
         let r = document.createElement("div");
-        r.setAttribute("class","barcode-price");
-        let s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        r.setAttribute("class", "barcode-price");
+        let s = document.createElement("div");
         s.setAttribute("id", `b-${j}-${i}-${data[i].code}`);
-        s.setAttribute("class", `barcode`);
+        let qrcode = new QRCode(s,{
+          height:50,width:50
+        });
+        qrcode.makeCode(data[i].code)
         let t = document.createElement("div");
-        t.setAttribute("class","text");
+        let pWrap = document.createElement("div");
+        let code = document.createElement("div");
+        code.innerText = data[i].code;
+        code.setAttribute("class","code");
+        t.setAttribute("class", "text");
         t.innerText = data[i].name;
         d.setAttribute("class", "block");
         elem.appendChild(d);
         r.appendChild(s);
         let price = document.createElement("div");
-        price.setAttribute("class","price");
+        price.setAttribute("class", "price");
         price.innerText = `₹${data[i].sp}`;
-        r.appendChild(price);
+        pWrap.setAttribute("class","pwrap")
+        pWrap.appendChild(price);
+        pWrap.appendChild(code);
+        r.appendChild(pWrap);
         d.appendChild(t);
         d.appendChild(r);
       }
 
-      for (let i = 0; i < data.length; i++) {
-        JsBarcode(`#b-${j}-${i}-${data[i].code}`, data[i].code, {
-          format: "CODE128",
-          displayValue: true,
-        });
-      }
+      // for (let i = 0; i < data.length; i++) {
+      //   JsBarcode(`#b-${j}-${i}-${data[i].code}`, data[i].code, {
+      //     format: "CODE128",
+      //     displayValue: true,
+      //   });
+      // }
     };
   };
 
@@ -137,8 +168,7 @@
 </form>
 
 <!-- <textarea class="form-control" rows="35" cols="120" id="xlx_json"></textarea> -->
-<div id="cntnr">
-</div>
+<div id="cntnr"></div>
 <svg id="code128"></svg>
 <script>
   document
