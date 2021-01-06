@@ -1,0 +1,248 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+<script src="https://cdn.jsdelivr.net/jsbarcode/3.3.16/barcodes/JsBarcode.code128.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+<script src="./qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/json2csv"></script>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  .a4 {
+    height: 296.9mm;
+    width: 210mm;
+    /* border: 1px solid; */
+    box-sizing: border-box;
+    padding: 5mm 1mm;
+  }
+  .block {
+    height: 20.67mm;
+    width: 52mm;
+    /* border: 1px solid; */
+    box-sizing: border-box;
+    float: left;
+    padding: 4px;
+  }
+  .price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  .mrp {
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 10px;
+    text-decoration: line-through;
+  }
+  .barcode {
+    width: 132px;
+    height: 55px;
+  }
+  .text {
+    font-size: 8px;
+    padding: 1px 2px 1px 2px;
+    /* border: 1px solid; */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 2px;
+  }
+  .code {
+    font-size: 9px;
+    margin-left: 10px;
+  }
+
+  .disc {
+    font-size: 11px;
+    margin-left: 10px;
+  }
+  .barcode-price {
+    display: flex;
+    align-items: center;
+  }
+  .pwrap {
+    display: flex;
+    flex-flow: column;
+  }
+  .pCntnr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+</style>
+<script>
+  var ExcelToJSON = function () {
+    this.parseExcel = function (file) {
+      var reader = new FileReader();
+      let func = this.buildBlocks;
+      reader.onload = function (e) {
+        var data = e.target.result;
+        var workbook = XLSX.read(data, {
+          type: "binary",
+        });
+        workbook.SheetNames.forEach(function (sheetName) {
+          // Here is your object
+          var XL_row_object = XLSX.utils.sheet_to_row_object_array(
+            workbook.Sheets[sheetName]
+          );
+          var json_object = JSON.stringify(XL_row_object);
+          console.log(JSON.parse(json_object));
+
+          const fields = [
+            "Item *",
+            "Units",
+            "Description",
+            "Item code",
+            "HSN",
+            "Sales price",
+            "Purchase price",
+            "MRP",
+            "Tax(%)",
+            "Tax inclusive",
+            "Current stock",
+            "Low stock quantity",
+          ];
+          const opts = { fields };
+
+          try {
+            let d = JSON.parse(json_object);
+            const parser = new json2csv.Parser(opts);
+            const csv = parser.parse(d);
+            var downloadLink = document.createElement("a");
+            var blob = new Blob(["\ufeff", csv]);
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = `${d[0].Party}-${d[0]["Bill No"]}-Billbook.csv`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            console.log(csv);
+          } catch (err) {
+            console.error(err);
+          }
+
+          jQuery("#xlx_json").val(json_object);
+
+          let data = XL_row_object.reduce((acc, value) => {
+            for (let i = 0; i < value["Current stock"]; i++) {
+              acc.push({
+                code: value["Item code"],
+                sp: value["Sales price"],
+                mrp: value["MRP"],
+                name: value["Item *"],
+              });
+            }
+            return acc;
+          }, []);
+          let j = 1;
+          document.getElementById("upload-form").style.display = "none";
+          while (data.length > 0) {
+            let d = data.splice(0, 56);
+            func(d, j++);
+          }
+          // var pdf = new jsPDF("p", "pt", "letter");
+          // pdf.canvas.height = 72 * 11;
+          // pdf.canvas.width = 72 * 8.5;
+
+          // pdf.fromHTML(document.body);
+
+          // pdf.save("test.pdf");
+        });
+      };
+
+      reader.onerror = function (ex) {
+        console.log(ex);
+      };
+
+      reader.readAsBinaryString(file);
+    };
+
+    this.buildBlocks = function (data, j) {
+      let elem = document.createElement("div");
+      let wrpr = document.getElementById("cntnr");
+      let mrp, discount;
+      wrpr.appendChild(elem);
+      elem.setAttribute("class", `a4`);
+      for (let i = 0; i < data.length; i++) {
+        let d = document.createElement("div");
+        let r = document.createElement("div");
+        r.setAttribute("class", "barcode-price");
+        let s = document.createElement("div");
+        s.setAttribute("id", `b-${j}-${i}-${data[i].code}`);
+        let qrcode = new QRCode(s, {
+          height: 50,
+          width: 50,
+        });
+        qrcode.makeCode(data[i].code);
+        let t = document.createElement("div");
+        let pWrap = document.createElement("div");
+        let code = document.createElement("div");
+        code.innerText = data[i].code;
+        code.setAttribute("class", "code");
+        t.setAttribute("class", "text");
+        t.innerText = data[i].name;
+        d.setAttribute("class", "block");
+        elem.appendChild(d);
+        r.appendChild(s);
+        let pCntnr = document.createElement("div");
+        pCntnr.setAttribute("class", "pCntnr");
+        if (data[i].mrp && data[i].mrp !== data[i].sp) {
+          mrp = document.createElement("div");
+          mrp.setAttribute("class", "mrp");
+          mrp.innerText = `₹${data[i].mrp}`;
+        }
+        let price = document.createElement("div");
+        price.setAttribute("class", "price");
+        price.innerText = `₹${data[i].sp}`;
+        if (data[i].mrp && data[i].mrp !== data[i].sp) {
+          pCntnr.appendChild(mrp);
+        }
+        pCntnr.appendChild(price);
+        if (data[i].mrp && data[i].mrp !== data[i].sp) {
+          let disc = document.createElement("div");
+          disc.setAttribute("class", "disc");
+          disc.innerText = `${Math.round(
+            ((data[i].mrp - data[i].sp) * 100) / data[i].mrp
+          )}% off`;
+          pWrap.appendChild(disc);
+        }
+        pWrap.setAttribute("class", "pwrap");
+        pWrap.appendChild(pCntnr);
+        pWrap.appendChild(code);
+        r.appendChild(pWrap);
+        d.appendChild(t);
+        d.appendChild(r);
+      }
+
+      // for (let i = 0; i < data.length; i++) {
+      //   JsBarcode(`#b-${j}-${i}-${data[i].code}`, data[i].code, {
+      //     format: "CODE128",
+      //     displayValue: true,
+      //   });
+      // }
+    };
+  };
+
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+    var xl2json = new ExcelToJSON();
+    xl2json.parseExcel(files[0]);
+    // xl2json.buildBlocks();
+  }
+</script>
+
+<form enctype="multipart/form-data" id="upload-form">
+  <input id="upload" type="file" name="files[]" />
+</form>
+
+<!-- <textarea class="form-control" rows="35" cols="120" id="xlx_json"></textarea> -->
+<div id="cntnr"></div>
+<svg id="code128"></svg>
+<script>
+  document
+    .getElementById("upload")
+    .addEventListener("change", handleFileSelect, false);
+</script>
