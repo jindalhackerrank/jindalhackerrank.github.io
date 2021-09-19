@@ -1,4 +1,5 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
 <script src="https://cdn.jsdelivr.net/jsbarcode/3.3.16/barcodes/JsBarcode.code128.min.js"></script>
@@ -73,6 +74,8 @@
   }
 </style>
 <script>
+
+//doc.text("Hello world!", 10, 10);
   var ExcelToJSON = function () {
     this.parseExcel = function (file) {
       var reader = new FileReader();
@@ -142,6 +145,8 @@
             let d = data.splice(0, 56);
             func(d, j++);
           }
+
+          //doc.save("a4.pdf");
           // var pdf = new jsPDF("p", "pt", "letter");
           // pdf.canvas.height = 72 * 11;
           // pdf.canvas.width = 72 * 8.5;
@@ -176,12 +181,15 @@
           width: 50,
         });
         qrcode.makeCode(data[i].code);
+       // doc.addImage($(`#b-${j}-${i}-${data[i].code}`).find('img').attr('src'), (i%4)*52,  (i/4)*21);
         let t = document.createElement("div");
         let pWrap = document.createElement("div");
         let code = document.createElement("div");
         code.innerText = data[i].code;
         code.setAttribute("class", "code");
+        d.setAttribute("data-code", data[i].code);
         t.setAttribute("class", "text");
+        d.setAttribute("data-name", data[i].name);
         t.innerText = data[i].name;
         d.setAttribute("class", "block");
         elem.appendChild(d);
@@ -195,6 +203,7 @@
         }
         let price = document.createElement("div");
         price.setAttribute("class", "price");
+        d.setAttribute("data-price", `₹${data[i].sp}`);
         price.innerText = `₹${data[i].sp}`;
         if (data[i].mrp && data[i].mrp !== data[i].sp) {
           pCntnr.appendChild(mrp);
@@ -230,7 +239,35 @@
     var xl2json = new ExcelToJSON();
     xl2json.parseExcel(files[0]);
     // xl2json.buildBlocks();
+
+    setTimeout(()=>{
+      const doc = new jsPDF();
+      let totalPages = Math.ceil($('.block').length/56);
+      for(let i = 0 ; i <totalPages;i++){
+        doc.addPage();
+      }
+      $('.block').each((index,elem)=>{
+        let page = Math.ceil((index+1)/56);
+        doc.setPage(page);
+          let data = $(elem).data();
+          let img = $('img')[index];
+          let x = ((index%56)%4)*(210/4)+5;
+          let y = parseInt(((index%56)/4))*(297/14)+5;
+          if(img)
+          doc.addImage(img.src,x,y);
+          doc.setFontSize(7);
+          doc.text(data.name,x-2,y-2);
+          doc.setFontSize(10);
+          doc.text(data.price,x+15,y+4);
+          doc.setFontSize(7);
+          doc.text(data.code,x+15,y+9);
+      });
+
+      doc.save("a4.pdf");
+    },1000)
+
   }
+
 </script>
 
 <form enctype="multipart/form-data" id="upload-form">
