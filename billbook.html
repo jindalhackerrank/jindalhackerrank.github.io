@@ -203,7 +203,7 @@
         }
         let price = document.createElement("div");
         price.setAttribute("class", "price");
-        d.setAttribute("data-price", `₹${data[i].sp}`);
+        d.setAttribute("data-price", `INR ${data[i].sp}`);
         price.innerText = `₹${data[i].sp}`;
         if (data[i].mrp && data[i].mrp !== data[i].sp) {
           pCntnr.appendChild(mrp);
