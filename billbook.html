@@ -15,11 +15,11 @@
   .a4 {
     height: 296.9mm;
     width: 210mm;
-    /* border: 1px solid; */
+    border: 1px solid;
     box-sizing: border-box;
   }
   .block {
-    height: 21.027142857mm;
+    height: 25mm;
     width: 52.25mm;
     /* border: 1px solid; */
     box-sizing: border-box;
@@ -177,8 +177,8 @@
         let s = document.createElement("div");
         s.setAttribute("id", `b-${j}-${i}-${data[i].code}`);
         let qrcode = new QRCode(s, {
-          height: 50,
-          width: 50,
+          height: 45,
+          width: 45,
         });
         qrcode.makeCode(data[i].code);
        // doc.addImage($(`#b-${j}-${i}-${data[i].code}`).find('img').attr('src'), (i%4)*52,  (i/4)*21);
@@ -242,17 +242,17 @@
 
     setTimeout(()=>{
       const doc = new jsPDF();
-      let totalPages = Math.ceil($('.block').length/56);
+      let totalPages = Math.ceil($('.block').length/52);
       for(let i = 0 ; i <totalPages;i++){
         doc.addPage();
       }
       $('.block').each((index,elem)=>{
-        let page = Math.ceil((index+1)/56);
+        let page = Math.ceil((index+1)/52);
         doc.setPage(page);
           let data = $(elem).data();
           let img = $('img')[index];
-          let x = ((index%56)%4)*(210/4)+5;
-          let y = parseInt(((index%56)/4))*(297/14)+5;
+          let x = ((index%52)%4)*(210/4)+5;
+          let y = parseInt(((index%52)/4))*(297/14)+10;
           if(img)
           doc.addImage(img.src,x,y);
           doc.setFontSize(7);
