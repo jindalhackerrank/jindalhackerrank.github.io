@@ -94,18 +94,22 @@
           console.log(JSON.parse(json_object));
 
           const fields = [
-            "Item *",
-            "Units",
+            "Item type (Service or Product)",
+            "Item",
+            "Unit",
             "Description",
+            "Category",
             "Item code",
             "HSN",
-            "Sales price",
-            "Purchase price",
-            "MRP",
+            "Visible on Online Store? (Yes or No)",
             "Tax(%)",
+            "Sales price",
             "Tax inclusive",
+            "Purchase price",
+            "Tax inclusive",
+            "MRP",
             "Current stock",
-            "Low stock quantity",
+            "Low stock quantity"
           ];
           const opts = { fields };
 
